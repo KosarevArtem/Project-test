@@ -47,7 +47,8 @@ class Tasks extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'category_id', 'description', 'client_id', 'status_id'], 'required'],
+            [['noResponses', 'noLocation'], 'boolean'],
+            [['filterPeriod'], 'number'],
             [['category_id', 'city_id', 'budget', 'client_id', 'performer_id', 'status_id'], 'integer'],
             [['description'], 'string'],
             [['expire_dt', 'dt_add'], 'safe'],
@@ -55,6 +56,7 @@ class Tasks extends \yii\db\ActiveRecord
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cities::className(), 'targetAttribute' => ['city_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Categories::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => Statuses::className(), 'targetAttribute' => ['status_id' => 'id']],
+            [['name', 'category_id', 'description', 'client_id', 'status_id'], 'required']
         ];
     }
 
@@ -76,8 +78,7 @@ class Tasks extends \yii\db\ActiveRecord
             'performer_id' => 'Исполнитель',
             'status_id' => 'Статус',
             'noLocation' => 'Удаленная работа',
-            'noResponses' => 'Без откликов',
-            'filterPeriod' => 'Период'
+            'noResponses' => 'Без откликов'
         ];
     }
 
@@ -85,9 +86,9 @@ class Tasks extends \yii\db\ActiveRecord
     public function getSearchQuery()
     {
         $query = self::find();
-        $query->where(['status_id' => 'Новое']);
+        $query->joinWith('status s')->where(['s.name' => 'Новое']);
 
-        $query->andFilterWhere(['category_id' => $this->category_id]);
+        /*$query->andFilterWhere(['category_id' => $this->category_id]);*/
 
         if ($this->noLocation) {
             $query->andWhere('city_id IS NULL');

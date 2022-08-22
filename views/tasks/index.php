@@ -8,6 +8,7 @@
  */
 
 use yii\helpers\Html;
+use yii\helpers\BaseHtml;
 use yii\helpers\BaseStringHelper;
 use yii\widgets\ActiveForm;
 
@@ -61,8 +62,15 @@ $this->title = 'Задания';
             <?php $form = ActiveForm::begin(); ?>
                 <h4 class="head-card">Категории</h4>
                 <div class="checkbox-wrapper">
-                <?=Html::activeCheckboxList($task, 'category_id', array_column($categories, 'name', 'id'),
-                        ['tag' => null, 'itemOptions' => ['labelOptions' => ['class' => 'control-label']]]); ?>
+                <?= $form->field($task, 'category_id')
+        ->checkboxList(array_column($categories, 'name', 'id'), [
+            'tag' => false,
+            'item' => function ($index, $label, $name, $checked, $value) {
+                $checked = $checked ? 'checked' : '';
+                return 
+                "<div> <input type='checkbox' id='$index' name='$name' 'value'='$value' $checked> <label class='control-label' for='$index'> $label </label> </div>";
+            }
+        ])-> label(false) ?>
                 <h4 class="head-card">Дополнительно</h4>
             <div class="checkbox-wrapper">
                     <?=$form->field($task, 'noResponses', ['template' => '{input}{label}'])->checkbox(['class' => 'checkbox'], false)->label( 'Без отклика', ['class' => 'control-label']); ?>
