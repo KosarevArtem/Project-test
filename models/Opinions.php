@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "opinions".
  *
  * @property int $id
+ * @property int $task_id
  * @property int $owner_id
  * @property int $performer_id
  * @property int $rate
@@ -16,6 +17,7 @@ use Yii;
  *
  * @property Users $owner
  * @property Users $performer
+ * @property Tasks $task
  */
 class Opinions extends \yii\db\ActiveRecord
 {
@@ -33,10 +35,11 @@ class Opinions extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['owner_id', 'performer_id', 'rate', 'description'], 'required'],
-            [['owner_id', 'performer_id', 'rate'], 'integer'],
+            [['task_id', 'owner_id', 'performer_id', 'rate', 'description'], 'required'],
+            [['task_id', 'owner_id', 'performer_id', 'rate'], 'integer'],
             [['description'], 'string'],
             [['dt_add'], 'safe'],
+            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tasks::className(), 'targetAttribute' => ['task_id' => 'id']],
             [['owner_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['owner_id' => 'id']],
             [['performer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['performer_id' => 'id']],
         ];
@@ -49,6 +52,7 @@ class Opinions extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'task_id' => 'Task ID',
             'owner_id' => 'Owner ID',
             'performer_id' => 'Performer ID',
             'rate' => 'Rate',
@@ -75,5 +79,15 @@ class Opinions extends \yii\db\ActiveRecord
     public function getPerformer()
     {
         return $this->hasOne(Users::className(), ['id' => 'performer_id']);
+    }
+
+    /**
+     * Gets query for [[Task]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTask()
+    {
+        return $this->hasOne(Tasks::className(), ['id' => 'task_id']);
     }
 }

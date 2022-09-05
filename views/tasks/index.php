@@ -10,7 +10,10 @@
 use yii\helpers\Html;
 use yii\helpers\BaseHtml;
 use yii\helpers\BaseStringHelper;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use yii\widgets\LinkPager;
 
 
 $this->title = 'Задания';
@@ -20,7 +23,7 @@ $this->title = 'Задания';
         <div class="task-card">
             <?php foreach ($models as $model): ?>
             <div class="header-task">
-                <a  href="#" class="link link--block link--big"><?= Html::encode($model->name); ?></a>
+                <a  href="<?= Url::to(['tasks/view', 'id' => $model->id]); ?>" class="link link--block link--big"><?= Html::encode($model->name); ?></a>
                 <p class="price price--task"><?= $model->budget; ?> ₽</p>
             </div>
             <p class="info-text"><?= Yii::$app->formatter->asRelativeTime($model->dt_add); ?></p>
@@ -30,31 +33,25 @@ $this->title = 'Задания';
                 <?php if ($model->city_id): ?>
                 <p class="info-text town-text"><?= $model->city->name; ?> </p>
                 <?php endif; ?>
-                <p class="info-text category-text"><?= $model->category->name ?></p>
+                <p class="info-text category-text"><?= $model->category->name; ?></p>
                 <a href="#" class="button button--black">Смотреть Задание</a>
             </div>
         </div>
         <?php endforeach; ?>
         
         <div class="pagination-wrapper">
-            <ul class="pagination-list">
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">1</a>
-                </li>
-                <li class="pagination-item pagination-item--active">
-                    <a href="#" class="link link--page">2</a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">3</a>
-                </li>
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-            </ul>
-        </div>
+        <?=LinkPager::widget([
+            'pagination' => $pages,
+            'prevPageCssClass' => 'pagination-item mark',
+            'nextPageCssClass' => 'pagination-item mark',
+            'pageCssClass' => 'pagination-item',
+            'activePageCssClass' => 'pagination-item--active',
+            'linkOptions' => ['class' => 'link link--page'],
+            'nextPageLabel' => '',
+            'prevPageLabel' => '',
+            'maxButtonCount' => 5
+        ]); ?>
+    </div>
     </div>
     <div class="right-column">
     <div class="right-card black">
@@ -62,15 +59,14 @@ $this->title = 'Задания';
             <?php $form = ActiveForm::begin(); ?>
                 <h4 class="head-card">Категории</h4>
                 <div class="checkbox-wrapper">
-                <?= $form->field($task, 'category_id')
-        ->checkboxList(array_column($categories, 'name', 'id'), [
+                <?= $form->field($task, 'category_id')->checkboxList(ArrayHelper::map($categories, 'id', 'name'), [
             'tag' => false,
             'item' => function ($index, $label, $name, $checked, $value) {
                 $checked = $checked ? 'checked' : '';
                 return 
                 "<div> <input type='checkbox' id='$index' name='$name' 'value'='$value' $checked> <label class='control-label' for='$index'> $label </label> </div>";
             }
-        ])-> label(false) ?>
+        ])->label(false) ?>
                 <h4 class="head-card">Дополнительно</h4>
             <div class="checkbox-wrapper">
                     <?=$form->field($task, 'noResponses', ['template' => '{input}{label}'])->checkbox(['class' => 'checkbox'], false)->label( 'Без отклика', ['class' => 'control-label']); ?>

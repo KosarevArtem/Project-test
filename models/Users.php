@@ -15,6 +15,7 @@ use Yii;
  * @property string $dt_add
  * @property int $blocked
  * @property string|null $last_activity
+ * @property float|null $rating
  *
  * @property Bookmarks[] $bookmarks
  * @property Bookmarks[] $bookmarks0
@@ -26,6 +27,8 @@ use Yii;
  * @property Opinions[] $opinions
  * @property Opinions[] $opinions0
  * @property Replies[] $replies
+ * @property Tasks[] $tasks
+ * @property Tasks[] $tasks0
  * @property UserCategories[] $userCategories
  * @property UserSettings $userSettings
  */
@@ -48,6 +51,7 @@ class Users extends \yii\db\ActiveRecord
             [['email', 'name', 'city_id', 'password'], 'required'],
             [['city_id', 'blocked'], 'integer'],
             [['dt_add', 'last_activity'], 'safe'],
+            [['rating'], 'number'],
             [['email', 'name'], 'string', 'max' => 255],
             [['password'], 'string', 'max' => 64],
             [['email'], 'unique'],
@@ -69,6 +73,7 @@ class Users extends \yii\db\ActiveRecord
             'dt_add' => 'Dt Add',
             'blocked' => 'Blocked',
             'last_activity' => 'Last Activity',
+            'rating' => 'Rating',
         ];
     }
 
@@ -147,7 +152,7 @@ class Users extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getOpinions()
+    public function getOwnerOpinions()
     {
         return $this->hasMany(Opinions::className(), ['owner_id' => 'id']);
     }
@@ -157,7 +162,7 @@ class Users extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getOpinions0()
+    public function getPerformerOpinions()
     {
         return $this->hasMany(Opinions::className(), ['performer_id' => 'id']);
     }
@@ -170,6 +175,26 @@ class Users extends \yii\db\ActiveRecord
     public function getReplies()
     {
         return $this->hasMany(Replies::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Tasks]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasks()
+    {
+        return $this->hasMany(Tasks::className(), ['client_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Tasks0]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasks0()
+    {
+        return $this->hasMany(Tasks::className(), ['performer_id' => 'id']);
     }
 
     /**

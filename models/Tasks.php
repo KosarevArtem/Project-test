@@ -56,7 +56,9 @@ class Tasks extends \yii\db\ActiveRecord
             [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cities::className(), 'targetAttribute' => ['city_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Categories::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => Statuses::className(), 'targetAttribute' => ['status_id' => 'id']],
-            [['name', 'category_id', 'description', 'client_id', 'status_id'], 'required']
+            [['client_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['client_id' => 'id']],
+            [['performer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['performer_id' => 'id']],
+            [['name', 'category_id', 'description', 'client_id', 'status_id'], 'required'],
         ];
     }
 
@@ -86,9 +88,9 @@ class Tasks extends \yii\db\ActiveRecord
     public function getSearchQuery()
     {
         $query = self::find();
-        $query->joinWith('status s')->where(['s.name' => 'Новое']);
+        $query->where(['status_id' => Statuses::STATUS_NEW]);
 
-        /*$query->andFilterWhere(['category_id' => $this->category_id]);*/
+        $query->andFilterWhere(['category_id' => $this->category_id]);
 
         if ($this->noLocation) {
             $query->andWhere('city_id IS NULL');
@@ -173,5 +175,25 @@ class Tasks extends \yii\db\ActiveRecord
     public function getStatus()
     {
         return $this->hasOne(Statuses::className(), ['id' => 'status_id']);
+    }
+
+    /**
+     * Gets query for [[Client]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClient()
+    {
+        return $this->hasOne(Users::className(), ['id' => 'client_id']);
+    }
+
+    /**
+     * Gets query for [[Performer]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPerformer()
+    {
+        return $this->hasOne(Users::className(), ['id' => 'performer_id']);
     }
 }
