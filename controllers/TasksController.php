@@ -10,7 +10,7 @@ use app\models\Categories;
 use yii\web\NotFoundHttpException;
 use yii\data\Pagination;
 
-class TasksController extends Controller
+class TasksController extends SecuredController
 {
     public function actionIndex()
     {
@@ -32,11 +32,41 @@ class TasksController extends Controller
      */
     public function actionView($id)
     {
-        $task = new Tasks();
-        $model = $task->find()->where(['id' => $id])->one();
+        $model = $this->findOrDie($id, Tasks::class);
         $replies = new Replies();
         $reply = $replies->find()->where(['task_id' => $id])->all();
 
         return $this->render('view', ['model' => $model, 'reply' => $reply]);
+    }
+
+    public function actionCreate()
+    {
+        $task = new Tasks();
+        $categories = Categories::find()->all();
+
+        if (Yii::$app->request->isPost) {
+            $task->load(Yii::$app->request->post());
+            var_dump($task);
+            $task->save();
+
+            if ($task->id) {
+                return $this->redirect(['tasks/view', 'id' => $task->id]);
+            }
+        }
+
+        return $this->render('create', ['model' => $task, 'categories' => $categories]);
+    }
+
+    public function actionValidateForm() 
+    {
+
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            $model = new Tasks();
+            if($model->load(Yii::$app->request->post()))
+                return \yii\widgets\ActiveForm::validate($model);
+        }
+        throw new \yii\web\BadRequestHttpException('Bad request!');
     }
 }

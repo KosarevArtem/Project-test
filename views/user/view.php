@@ -14,15 +14,19 @@ $this->title = $profile->name;
         <h3 class="head-main"><?= Html::encode($profile->name); ?></h3>
         <div class="user-card">
             <div class="photo-rate">
+                <?php if (!empty($profile->userSettings->avatar_path)): ?>
                 <img class="card-photo" src="<?= $profile->userSettings->avatar_path; ?>" width="191" height="190" alt="Фото пользователя">
+                <?php endif; ?>
                 <div class="card-rate">
                     <?=UIHelper::showStarRating($profile->rating, 'big'); ?>
                     <span class="current-rate"><?=$profile->rating; ?></span>
                 </div>
             </div>
+            <?php if (!empty($profile->userSettings->about)): ?>
             <p class="user-description">
                 <?= $profile->userSettings->about; ?>
             </p>
+            <?php endif; ?>
         </div>
         <div class="specialization-bio">
             <div class="specialization">
@@ -72,15 +76,19 @@ $this->title = $profile->name;
         <div class="right-card white">
             <h4 class="head-card">Контакты</h4>
             <ul class="enumeration-list">
+                <?php if (!empty($profile->userSettings->phone)): ?>
                 <li class="enumeration-item">
                     <a href="#" class="link link--block link--phone">+<?= $profile->userSettings->phone; ?></a>
                 </li>
+                <?php endif; ?>
                 <li class="enumeration-item">
                     <a href="#" class="link link--block link--email"><?= $profile->email; ?></a>
                 </li>
+                <?php if (!empty($profile->userSettings->messenger)): ?>
                 <li class="enumeration-item">
                     <a href="#" class="link link--block link--tg">@<?= $profile->userSettings->messenger; ?></a>
                 </li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>

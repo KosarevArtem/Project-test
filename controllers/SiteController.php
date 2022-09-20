@@ -12,47 +12,6 @@ use app\models\ContactForm;
 
 class SiteController extends Controller
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
-        ];
-    }
 
     /**
      * Displays homepage.
@@ -61,68 +20,47 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
-    }
-
-    /**
-     * Login action.
-     *
-     * @return Response|string
-     */
-    public function actionLogin()
-    {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+        if (Yii::$app->user->identity) {
+            return $this->redirect(['tasks/index']);
         }
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+        $this->layout = 'landing';
+        
+        $loginForm = new LoginForm();
+
+        if (\Yii::$app->request->getIsPost()) {
+            $loginForm->load(\Yii::$app->request->post());
+            if ($loginForm->validate()) {
+                $user = $loginForm->getUser();
+                \Yii::$app->user->login($user);
+                return $this->redirect(['tasks/index']);
+            }
         }
 
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        return $this->render('index', ['model' => $loginForm]);
     }
 
-    /**
-     * Logout action.
-     *
-     * @return Response
-     */
-    public function actionLogout()
+    public function actionValidateForm() 
     {
-        Yii::$app->user->logout();
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
+            $model = new LoginForm();
+            if($model->load(Yii::$app->request->post())) {
+                return \yii\widgets\ActiveForm::validate($model);
+            }
         }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
+        throw new \yii\web\BadRequestHttpException('Bad request!');
     }
 
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
+    public function actionError()
     {
-        return $this->render('about');
+    $exception = Yii::$app->errorHandler->exception;
+    if ($exception !== null) {
+        if ($exception->statusCode == 404)
+            return $this->render('errors/error404', ['exception' => $exception]);
+        else
+            return $this->render('errors/error', ['exception' => $exception]);
     }
+}
 }

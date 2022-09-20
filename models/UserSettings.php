@@ -20,7 +20,6 @@ use Yii;
  * @property int|null $notify_new_reply
  * @property int|null $opt_hide_contacts
  * @property int|null $opt_hide_me
- * @property int|null $is_performer
  * @property int $user_id
  *
  * @property Users $user
@@ -43,7 +42,7 @@ class UserSettings extends \yii\db\ActiveRecord
         return [
             [['bd'], 'safe'],
             [['about'], 'string'],
-            [['notify_new_msg', 'notify_new_action', 'notify_new_reply', 'opt_hide_contacts', 'opt_hide_me', 'is_performer', 'user_id'], 'integer'],
+            [['notify_new_msg', 'notify_new_action', 'notify_new_reply', 'opt_hide_contacts', 'opt_hide_me', 'user_id'], 'integer'],
             [['user_id'], 'required'],
             [['address', 'avatar_path'], 'string', 'max' => 255],
             [['phone'], 'string', 'max' => 11],
@@ -73,7 +72,6 @@ class UserSettings extends \yii\db\ActiveRecord
             'notify_new_reply' => 'Notify New Reply',
             'opt_hide_contacts' => 'Opt Hide Contacts',
             'opt_hide_me' => 'Opt Hide Me',
-            'is_performer' => 'Is Performer',
             'user_id' => 'User ID',
         ];
     }

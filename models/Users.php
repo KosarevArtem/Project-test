@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "users".
@@ -16,6 +17,7 @@ use Yii;
  * @property int $blocked
  * @property string|null $last_activity
  * @property float|null $rating
+ * @property int|null $is_performer
  *
  * @property Bookmarks[] $bookmarks
  * @property Bookmarks[] $bookmarks0
@@ -32,7 +34,7 @@ use Yii;
  * @property UserCategories[] $userCategories
  * @property UserSettings $userSettings
  */
-class Users extends \yii\db\ActiveRecord
+class Users extends Auth implements IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -49,7 +51,7 @@ class Users extends \yii\db\ActiveRecord
     {
         return [
             [['email', 'name', 'city_id', 'password'], 'required'],
-            [['city_id', 'blocked'], 'integer'],
+            [['city_id', 'blocked', 'is_performer'], 'integer'],
             [['dt_add', 'last_activity'], 'safe'],
             [['rating'], 'number'],
             [['email', 'name'], 'string', 'max' => 255],
@@ -74,6 +76,7 @@ class Users extends \yii\db\ActiveRecord
             'blocked' => 'Blocked',
             'last_activity' => 'Last Activity',
             'rating' => 'Rating',
+            'is_performer' => 'Is Performer',
         ];
     }
 

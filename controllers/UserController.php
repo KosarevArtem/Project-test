@@ -11,13 +11,13 @@ use app\models\Tasks;
 use app\models\Statuses;
 use app\models\Replies;
 use app\models\Categories;
+use yii\web\NotFoundHttpException;
 
-class UserController extends Controller 
+class UserController extends SecuredController
 {
     public function actionView($id)
     {
-        $users = new Users();
-        $profile = $users->find()->where(['id' => $id])->one();
+        $profile = $this->findOrDie($id, Users::class);
         $categories = new UserCategories();
         $userCategories = $categories->find()->where(['user_id' => $id])->all();
         $opinions = new Opinions;

@@ -3,6 +3,12 @@
 namespace app\models;
 
 use Yii;
+use taskforce\logic\actions\AbstractAction;
+use taskforce\logic\actions\CancelAction;
+use taskforce\logic\AvailableActions;
+use yii\behaviors\BlameableBehavior;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "tasks".
@@ -26,7 +32,7 @@ use Yii;
  * @property Replies[] $replies
  * @property Statuses $status
  */
-class Tasks extends \yii\db\ActiveRecord
+class Tasks extends ActiveRecord
 {
 
     public $noResponses;
@@ -41,12 +47,33 @@ class Tasks extends \yii\db\ActiveRecord
         return 'tasks';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'client_id',
+                'updatedByAttribute' => null
+            ]
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
+            [['status_id'], 'default', 'value' => function($model, $attr) {
+                return Statuses::find()->select('id')->where('id=1')->scalar();
+            }],
+            [['city_id'], 'default', 'value' => function($model, $attr) {
+                if (\Yii::$app->user->getIdentity()->city_id) {
+                    return \Yii::$app->user->getIdentity()->city_id;
+                }
+    
+                return null;
+            }],
             [['noResponses', 'noLocation'], 'boolean'],
             [['filterPeriod'], 'number'],
             [['category_id', 'city_id', 'budget', 'client_id', 'performer_id', 'status_id'], 'integer'],
